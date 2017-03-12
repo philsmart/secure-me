@@ -1,0 +1,23 @@
+#banner {
+    display: block;
+    background-color: darkblue;
+    color: white;
+    font-family: 'DejaVu Sans Mono', monospace;
+    text-align: center;
+    padding: 10px 10px 10px 10px;
+    margin-bottom: 20px;
+}
+
+#footer {
+    display: block;
+    text-align: right;
+    background-color: #f3f3f3;
+}
+
+input[type="text"] {
+    border-radius: 15px;
+    border: 1px solid #73AD21;
+    padding: 10px;
+    width: 400px;
+
+}
