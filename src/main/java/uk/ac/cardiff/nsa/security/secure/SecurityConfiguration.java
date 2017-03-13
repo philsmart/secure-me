@@ -42,7 +42,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().csrf().disable().addFilterBefore(tokenFilter,UsernamePasswordAuthenticationFilter.class).authorizeRequests().anyRequest().authenticated();
+        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().csrf().disable().addFilterBefore(tokenFilter,UsernamePasswordAuthenticationFilter.class).authorizeRequests().antMatchers("/api/**").authenticated();
         //http.authorizeRequests().anyRequest().permitAll();
     }
 }

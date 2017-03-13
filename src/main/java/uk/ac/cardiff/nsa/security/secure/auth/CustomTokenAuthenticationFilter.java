@@ -34,7 +34,7 @@ public class CustomTokenAuthenticationFilter extends AbstractAuthenticationProce
 
 
     public CustomTokenAuthenticationFilter() {
-        super(new AntPathRequestMatcher("/**"));
+        super(new AntPathRequestMatcher("/api/**"));
         setAuthenticationManager(new NoopAuthenticationManager());
         setAuthenticationSuccessHandler(new SuccessfulTokenAuth());
     }

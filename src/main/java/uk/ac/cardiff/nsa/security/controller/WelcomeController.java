@@ -14,6 +14,7 @@ import java.util.Map;
  * Created by philsmart on 13/03/2017.
  */
 @RestController
+@RequestMapping("/api/")
 public class WelcomeController {
 
 
