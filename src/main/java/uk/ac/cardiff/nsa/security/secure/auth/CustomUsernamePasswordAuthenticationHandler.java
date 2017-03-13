@@ -7,8 +7,13 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 import uk.ac.cardiff.nsa.security.secure.SecurityConfiguration;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Copied Java doc from superclass for help (should not do that). We are going to initially support a UsernamePasswork auth token.
@@ -24,7 +29,7 @@ public class CustomUsernamePasswordAuthenticationHandler implements Authenticati
      * {@link AuthenticationManager#authenticate(Authentication)}
      * .
      *
-     * @param authentication the authentication request object.
+     * @param auth the authentication request object.
      * @return a fully authenticated object including credentials. May return
      * <code>null</code> if the <code>AuthenticationProvider</code> is unable to support
      * authentication of the passed <code>Authentication</code> object. In such a case,
@@ -33,10 +38,20 @@ public class CustomUsernamePasswordAuthenticationHandler implements Authenticati
      * @throws AuthenticationException if authentication fails.
      */
     @Override
-    public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+    public Authentication authenticate(Authentication auth) throws AuthenticationException {
 
         log.info("Doing my kind of authentication");
-        return null;
+
+        List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+        authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(auth.getName(), auth.getCredentials(), authorities);
+
+        return token;
+
+        //not authenticated
+        //throw new AuthenticationException("Not authenticated");
+
     }
 
     /**
