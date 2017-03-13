@@ -7,6 +7,9 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import uk.ac.cardiff.nsa.security.secure.auth.CustomUsernamePasswordAuthenticationHandler;
+
+import javax.inject.Inject;
 
 /**
  * Created by philsmart on 06/02/2017.
@@ -17,10 +20,14 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private static final Logger log = LoggerFactory.getLogger(SecurityConfiguration.class);
 
+    @Inject
+    private CustomUsernamePasswordAuthenticationHandler customProvider;
+
 
     @Autowired
     public void configAuthentication(AuthenticationManagerBuilder auth) throws Exception {
-        log.debug("Setting up auth manager");
+        log.debug("Setting up custom auth manager");
+        auth.authenticationProvider(customProvider);
 
 
     }
@@ -28,8 +35,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-//        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-//                .antMatcher("/api/v1/*").authorizeRequests().anyRequest().authenticated().and().httpBasic();
+        http.authorizeRequests().anyRequest().authenticated().and().formLogin();
 
     }
 }
