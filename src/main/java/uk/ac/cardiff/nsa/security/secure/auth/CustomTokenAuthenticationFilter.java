@@ -66,7 +66,7 @@ public class CustomTokenAuthenticationFilter extends AbstractAuthenticationProce
         String header = request.getHeader("Authorization");
 
         log.debug("Has Authorization header [{}]",header);
-        DaoAuthenticationProvider p;
+
         List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
         authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
 
