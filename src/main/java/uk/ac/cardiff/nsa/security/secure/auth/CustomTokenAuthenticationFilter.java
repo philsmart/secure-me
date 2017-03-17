@@ -5,17 +5,17 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.crypto.codec.Base64;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
+import javax.annotation.Nonnull;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -67,19 +67,71 @@ public class CustomTokenAuthenticationFilter extends AbstractAuthenticationProce
 
         log.debug("Has Authorization header [{}]",header);
 
+        final String authHeader = header.replace("Basic ", "");
+
+        final byte[] authHeaderDecoded = Base64.decode(authHeader.getBytes());
+
+        //will fail here with BadCredentialsException if not valid
+        ValidToken token = validateToken(new String(authHeaderDecoded));
+
+        log.debug("Token was validated, user {} with role {}", token.getUsername(), token.getRole());
+
         List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
-        authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+        authorities.add(new SimpleGrantedAuthority(token.getRole()));
 
         HttpSessionSecurityContextRepository np;
 
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("test", "test", authorities);
+        UsernamePasswordAuthenticationToken upToken = new UsernamePasswordAuthenticationToken(token.getUsername(), null, authorities);
 
-       // throw new BadCredentialsException("Bad username/password");
-        return token;
-
+        // throw new BadCredentialsException("Bad username/password");
+        return upToken;
 
 
     }
+
+    @Nonnull
+    private ValidToken validateToken(@Nonnull String token) {
+
+        //these will throw auth execptions if not found - one check.
+        final String username = getUsernameFromBasicAuthString(token);
+        final String role = getRoleFromBasicAuthString(token);
+
+        if (role.startsWith("ROLE") == false) {
+            throw new BadCredentialsException("User roles not found in access token");
+        }
+
+        return new ValidToken(username, role);
+    }
+
+
+    @Nonnull
+    private String getUsernameFromBasicAuthString(final String authString) {
+
+
+        final String[] userPass = authString.split(":");
+
+        if (userPass.length == 2) {
+            return userPass[0];
+        } else {
+            log.warn("Authorisation header invalid, contains {} components, should be 2", userPass.length);
+            throw new BadCredentialsException("Authorisation header invalid, no username found");
+        }
+    }
+
+    @Nonnull
+    private String getRoleFromBasicAuthString(final String authString) {
+
+
+        final String[] userPass = authString.split(":");
+
+        if (userPass.length == 2) {
+            return userPass[1];
+        } else {
+            log.warn("Authorisation header invalid, contains {} components, should be 2", userPass.length);
+            throw new BadCredentialsException("Authorisation header invalid, no roles found");
+        }
+    }
+
 
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult)
@@ -118,5 +170,27 @@ public class CustomTokenAuthenticationFilter extends AbstractAuthenticationProce
             throw new UnsupportedOperationException("No authentication should be done with this AuthenticationManager");
         }
 
+    }
+
+
+}
+
+class ValidToken {
+
+    private final String username;
+
+    private final String role;
+
+    public ValidToken(String username, String role) {
+        this.username = username;
+        this.role = role;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getRole() {
+        return role;
     }
 }
