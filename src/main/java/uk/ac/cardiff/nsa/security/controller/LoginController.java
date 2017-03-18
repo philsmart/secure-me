@@ -7,6 +7,7 @@ import org.springframework.security.crypto.codec.Base64;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import uk.ac.cardiff.nsa.security.token.SimpleToken;
 import uk.ac.cardiff.nsa.security.token.TokenRepository;
 import uk.ac.cardiff.nsa.security.user.User;
 import uk.ac.cardiff.nsa.security.user.UserRepository;
@@ -56,13 +57,13 @@ public class LoginController {
 
         final User authenticatedUser = userRepo.authenticate(username, password);
 
-        String accessToken = authenticatedUser.generateToken();
+        SimpleToken accessToken = authenticatedUser.generateToken();
 
         tokenRepository.getPublishedTokens().add(accessToken);
 
         log.debug("Generated AccessToken {}", accessToken);
 
-        return accessToken;
+        return accessToken.generate();
 
 
     }

@@ -1,6 +1,6 @@
 package uk.ac.cardiff.nsa.security.user;
 
-import org.springframework.security.crypto.codec.Base64;
+import uk.ac.cardiff.nsa.security.token.SimpleToken;
 
 import javax.annotation.Nonnull;
 import java.util.Objects;
@@ -44,12 +44,12 @@ public class User {
     }
 
 
-    public String generateToken() {
-        StringBuffer buff = new StringBuffer();
-        buff.append(username).append(":").append(role);
-        String token = buff.toString();
-        return new String(Base64.encode(token.getBytes()));
+    public SimpleToken generateToken() {
 
+        SimpleToken token =
+                SimpleToken.builder().setPrincipalName(username).setRole(role).setIssuedAt(System.currentTimeMillis()).setValidFor(36000).build();
+
+        return token;
     }
 
     public String getName() {

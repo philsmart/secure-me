@@ -1,5 +1,6 @@
 package uk.ac.cardiff.nsa.security.secure.auth;
 
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -12,6 +13,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.codec.Base64;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.session.SessionAuthenticationException;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
@@ -92,45 +94,30 @@ public class CustomTokenAuthenticationFilter extends AbstractAuthenticationProce
     @Nonnull
     private ValidToken validateToken(@Nonnull String token) {
 
-        //these will throw auth execptions if not found - one check.
-        final String username = getUsernameFromBasicAuthString(token);
-        final String role = getRoleFromBasicAuthString(token);
+        JSONObject tokenJson = new JSONObject(token);
+
+        String role = tokenJson.getString("role");
+        Long validFor = tokenJson.getLong("validFor");
+        Long issuedAt = tokenJson.getLong("issuedAt");
+        String principal = tokenJson.getString("principalName");
+
+        long currentTime = System.currentTimeMillis();
+
+        if (issuedAt + validFor < currentTime) {
+            log.warn("Token is no longer valid, expired at {}, is now {}", issuedAt + validFor, currentTime);
+            throw new SessionAuthenticationException("Token no longer valid");
+        }
+
 
         if (role.startsWith("ROLE") == false) {
             throw new BadCredentialsException("User roles not found in access token");
         }
 
-        return new ValidToken(username, role);
+        return new ValidToken(principal, role);
     }
 
 
-    @Nonnull
-    private String getUsernameFromBasicAuthString(final String authString) {
 
-
-        final String[] userPass = authString.split(":");
-
-        if (userPass.length == 2) {
-            return userPass[0];
-        } else {
-            log.warn("Authorisation header invalid, contains {} components, should be 2", userPass.length);
-            throw new BadCredentialsException("Authorisation header invalid, no username found");
-        }
-    }
-
-    @Nonnull
-    private String getRoleFromBasicAuthString(final String authString) {
-
-
-        final String[] userPass = authString.split(":");
-
-        if (userPass.length == 2) {
-            return userPass[1];
-        } else {
-            log.warn("Authorisation header invalid, contains {} components, should be 2", userPass.length);
-            throw new BadCredentialsException("Authorisation header invalid, no roles found");
-        }
-    }
 
 
     @Override

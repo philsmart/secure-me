@@ -15,10 +15,10 @@ public class TokenRepository {
     /**
      * All tokens in this list are assumed valid e.g. belongs to authenticated client users.
      */
-    private List<String> publishedTokens = new ArrayList<String>();
+    private List<SimpleToken> publishedTokens = new ArrayList<SimpleToken>();
 
 
-    public List<String> getPublishedTokens() {
+    public List<SimpleToken> getPublishedTokens() {
         return publishedTokens;
     }
 
