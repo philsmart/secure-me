@@ -2,13 +2,10 @@ package uk.ac.cardiff.nsa.security.controller;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * Created by philsmart on 13/03/2017.
@@ -24,6 +21,16 @@ public class WelcomeController {
     public String sayHello(){
 
         return  "HELLO WORLD";
+
+
+    }
+
+
+    @RequestMapping(value = "/admin", method = RequestMethod.GET, produces = "application/json")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public String sayHelloToTheAdmin() {
+
+        return "HELLO ADMIN";
 
 
     }
