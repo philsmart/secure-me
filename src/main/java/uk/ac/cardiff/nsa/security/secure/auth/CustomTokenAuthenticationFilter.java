@@ -1,5 +1,6 @@
 package uk.ac.cardiff.nsa.security.secure.auth;
 
+
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,10 +72,10 @@ public class CustomTokenAuthenticationFilter extends AbstractAuthenticationProce
 
         final String authHeader = header.replace("Basic ", "");
 
-        final byte[] authHeaderDecoded = Base64.decode(authHeader.getBytes());
+
 
         //will fail here with BadCredentialsException if not valid
-        ValidToken token = validateToken(new String(authHeaderDecoded));
+        ValidToken token = validateToken(authHeader);
 
         log.debug("Token was validated, user {} with role {}", token.getUsername(), token.getRole());
 
@@ -94,7 +95,23 @@ public class CustomTokenAuthenticationFilter extends AbstractAuthenticationProce
     @Nonnull
     private ValidToken validateToken(@Nonnull String token) {
 
-        JSONObject tokenJson = new JSONObject(token);
+        if (token.contains(".") == false) {
+            throw new BadTokenException("Token does not contain digest (hash)");
+        }
+
+        String[] splitToken = token.split("\\.");
+
+        if (splitToken.length != 2) {
+            throw new BadTokenException("Token length is invalid, length is " + splitToken.length);
+        }
+
+        final byte[] contentDecoded = Base64.decode(splitToken[0].getBytes());
+
+        String contentDecodedString = new String(contentDecoded);
+
+        log.debug("Has JSON content in token [{}]", contentDecodedString);
+
+        JSONObject tokenJson = new JSONObject(contentDecodedString);
 
         String role = tokenJson.getString("role");
         Long validFor = tokenJson.getLong("validFor");

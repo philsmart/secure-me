@@ -1,7 +1,14 @@
 package uk.ac.cardiff.nsa.security.token;
 
 import org.json.JSONObject;
-import org.springframework.security.crypto.codec.Base64;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.web.authentication.session.SessionAuthenticationException;
+import uk.ac.cardiff.nsa.security.secure.HashUtils;
+
+import java.io.UnsupportedEncodingException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 
 /**
  * Ignore for now. This is more sophisticated version.
@@ -9,6 +16,8 @@ import org.springframework.security.crypto.codec.Base64;
 public class SimpleToken {
 
     private TokenClaims claims = new TokenClaims();
+
+    private static final Logger log = LoggerFactory.getLogger(SimpleToken.class);
 
 
     public static Builder builder() {
@@ -27,8 +36,19 @@ public class SimpleToken {
         final JSONObject claimsAsJson = new JSONObject(claims);
         final String json = claimsAsJson.toString();
 
-        return new String(Base64.encode(json.getBytes()));
+        try {
+            String base64Hash = HashUtils.messageHash(json);
+
+            return Base64.getEncoder().encodeToString(json.getBytes()) + "." + base64Hash;
+
+        } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
+            log.error("Could not create message hash, login will fail");
+            throw new SessionAuthenticationException("Has for token could not be generated");
+        }
+
     }
+
+
 
     public static class Builder {
 
