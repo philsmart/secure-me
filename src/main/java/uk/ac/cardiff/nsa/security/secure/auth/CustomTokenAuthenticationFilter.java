@@ -17,6 +17,7 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.security.web.authentication.session.SessionAuthenticationException;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import uk.ac.cardiff.nsa.security.secure.HashUtils;
 
 import javax.annotation.Nonnull;
 import javax.servlet.FilterChain;
@@ -24,6 +25,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -111,12 +114,33 @@ public class CustomTokenAuthenticationFilter extends AbstractAuthenticationProce
 
         log.debug("Has JSON content in token [{}]", contentDecodedString);
 
+
+        //now check the base64 of the hash is the same
+        try {
+            final String base64Hash = HashUtils.messageHash(contentDecodedString);
+
+            log.debug("Computed hash [{}], message hash [{}]", base64Hash, splitToken[1]);
+
+            if (base64Hash.equals(splitToken[1]) == false) {
+                log.error("Message integrity checks failed, computed hash is not the same as the sent hash");
+                throw new BadTokenException("Message integrity checks failed, hashes are not the same");
+            }
+
+
+        } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
+            log.error("Message hash could not be constructed from input json [{}]", contentDecodedString);
+            throw new BadTokenException("Message hash could not be constructed from input JSON");
+        }
+
+
+
         JSONObject tokenJson = new JSONObject(contentDecodedString);
 
         String role = tokenJson.getString("role");
         Long validFor = tokenJson.getLong("validFor");
         Long issuedAt = tokenJson.getLong("issuedAt");
         String principal = tokenJson.getString("principalName");
+
 
         long currentTime = System.currentTimeMillis();
 
@@ -129,6 +153,7 @@ public class CustomTokenAuthenticationFilter extends AbstractAuthenticationProce
         if (role.startsWith("ROLE") == false) {
             throw new BadCredentialsException("User roles not found in access token");
         }
+
 
         return new ValidToken(principal, role);
     }
