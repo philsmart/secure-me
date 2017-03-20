@@ -4,8 +4,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
@@ -40,5 +43,19 @@ public class HashUtils {
 
         return base64Hash;
 
+    }
+
+    public static String hmac256(@Nonnull final String message, @Nonnull String key) throws NoSuchAlgorithmException, InvalidKeyException, UnsupportedEncodingException {
+        final Mac sha256_HMAC = Mac.getInstance("HmacSHA256");
+        SecretKeySpec secretKey = new SecretKeySpec(key.getBytes("UTF-8"), "HmacSHA256");
+        sha256_HMAC.init(secretKey);
+        final byte[] hmac = sha256_HMAC.doFinal(message.getBytes());
+
+        final String hmacString = Base64.getEncoder().encodeToString(hmac);
+
+        log.debug("Has raw hmac [{}]", hmac);
+        log.debug("Has base64 encoded hmac [{}]", hmacString);
+
+        return hmacString;
     }
 }

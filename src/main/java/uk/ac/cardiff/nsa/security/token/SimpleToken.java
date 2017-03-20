@@ -6,8 +6,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.web.authentication.session.SessionAuthenticationException;
 import uk.ac.cardiff.nsa.security.secure.HashUtils;
 
-import java.io.UnsupportedEncodingException;
-import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 
 /**
@@ -37,12 +35,12 @@ public class SimpleToken {
         final String json = claimsAsJson.toString();
 
         try {
-            String base64Hash = HashUtils.messageHash(json);
+            String hmac = HashUtils.hmac256(json, SharedKey.sharedKey);
 
-            return Base64.getEncoder().encodeToString(json.getBytes()) + "." + base64Hash;
+            return Base64.getEncoder().encodeToString(json.getBytes()) + "." + hmac;
 
-        } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
-            log.error("Could not create message hash, login will fail");
+        } catch (Exception e) {
+            log.error("Could not create message hash, login will fail", e);
             throw new SessionAuthenticationException("Has for token could not be generated");
         }
 
