@@ -17,8 +17,6 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.security.web.authentication.session.SessionAuthenticationException;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import uk.ac.cardiff.nsa.security.secure.HashUtils;
-import uk.ac.cardiff.nsa.security.token.SharedKey;
 
 import javax.annotation.Nonnull;
 import javax.servlet.FilterChain;
@@ -26,9 +24,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -106,36 +101,20 @@ public class CustomTokenAuthenticationFilter extends AbstractAuthenticationProce
 
         String[] splitToken = token.split("\\.");
 
-        if (splitToken.length != 2) {
-            throw new BadTokenException("Token length is invalid, length is " + splitToken.length);
+        if (splitToken.length != 3) {
+            throw new BadTokenException("Token length is invalid (needs to be 3), length is " + splitToken.length);
         }
 
-        final byte[] contentDecoded = Base64.decode(splitToken[0].getBytes());
+        final byte[] secureContentDecoded = Base64.decode(splitToken[0].getBytes());
+        final byte[] secureAesKeyDecoded = Base64.decode(splitToken[1].getBytes());
+        final byte[] secureInitVectorDecoded = Base64.decode(splitToken[2].getBytes());
 
-        String contentDecodedString = new String(contentDecoded);
-
-        log.debug("Has JSON content in token [{}]", contentDecodedString);
-
-
-        //now check the base64 of the hmac is the same
-        try {
-            final String base64Hmac = HashUtils.hmac256(contentDecodedString, SharedKey.sharedKey);
-
-            log.debug("Computed hash [{}], message hash [{}]", base64Hmac, splitToken[1]);
-
-            if (base64Hmac.equals(splitToken[1]) == false) {
-                log.error("Message integrity checks failed, message authentication codes are not the same");
-                throw new BadTokenException("Message integrity checks failed, message authentication codes are not the same");
-            }
+        log.debug("Content secure [{}]", secureContentDecoded);
+        log.debug("Key secure [{}]", secureAesKeyDecoded);
+        log.debug("Secure initVector [{}]", secureInitVectorDecoded);
 
 
-        } catch (NoSuchAlgorithmException | UnsupportedEncodingException | InvalidKeyException e) {
-            log.error("Message authentication code could not be constructed from input json [{}]", contentDecodedString, e);
-            throw new BadTokenException("Message authentication code could not be constructed from input JSON");
-        }
-
-
-        JSONObject tokenJson = new JSONObject(contentDecodedString);
+        JSONObject tokenJson = new JSONObject("{}");
 
         String role = tokenJson.getString("role");
         Long validFor = tokenJson.getLong("validFor");

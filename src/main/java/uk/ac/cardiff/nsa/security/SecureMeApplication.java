@@ -11,6 +11,8 @@ import javax.faces.webapp.FacesServlet;
 public class SecureMeApplication {
 
     public static void main(String[] args) {
+
+
         SpringApplication.run(SecureMeApplication.class, args);
     }
 
