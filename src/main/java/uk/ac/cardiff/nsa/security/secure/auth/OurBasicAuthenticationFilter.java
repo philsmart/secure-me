@@ -23,7 +23,6 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -66,21 +65,9 @@ public class OurBasicAuthenticationFilter extends OncePerRequestFilter {
 
         log.info("Has Found username [{}] and password [{}]", usernamePassword[0], usernamePassword[1]);
 
-        if (usernamePassword[1] != null) {
-            final Optional<String> passwordAsBase64Hash = hashStringToBase64(usernamePassword[1]);
-            if (passwordAsBase64Hash.isPresent()) {
-                if (password.equals(passwordAsBase64Hash.get()) && username.equals(usernamePassword[0])) {
-                    log.info("Username and password match!");
-
-                    final Authentication authentication =
-                            constructAuthenticationObject(usernamePassword[0], usernamePassword[1]);
-
-                    // this effectively is a authenticated identity.
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
-
-                }
-            }
-        }
+        /*
+         * ADD something here to finish this
+         */
 
         // always pass down the chain at the end
         chain.doFilter(request, response);
