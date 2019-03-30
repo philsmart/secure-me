@@ -19,7 +19,7 @@ import java.util.List;
  * Copied Java doc from superclass for help (should not do that). We are going to initially support a UsernamePasswork auth token.
  */
 @Component
-public class CustomUsernamePasswordAuthenticationHandler implements AuthenticationProvider {
+public class CustomUsernamePasswordAuthenticationProvider implements AuthenticationProvider {
 
     private static final Logger log = LoggerFactory.getLogger(SecurityConfiguration.class);
 
@@ -41,6 +41,7 @@ public class CustomUsernamePasswordAuthenticationHandler implements Authenticati
     public Authentication authenticate(Authentication auth) throws AuthenticationException {
 
         log.info("Doing my kind of authentication");
+
 
         List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
         authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
