@@ -10,6 +10,7 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -71,11 +72,8 @@ public class OurBasicAuthenticationFilter extends OncePerRequestFilter {
                 if (password.equals(passwordAsBase64Hash.get()) && username.equals(usernamePassword[0])) {
                     log.info("Username and password match!");
 
-                    final List<SimpleGrantedAuthority> authorities = new ArrayList<>();
-                    authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
-
-                    final Authentication authentication = new UsernamePasswordAuthenticationToken(usernamePassword[0],
-                            usernamePassword[1], authorities);
+                    final Authentication authentication =
+                            constructAuthenticationObject(usernamePassword[0], usernamePassword[1]);
 
                     // this effectively is a authenticated identity.
                     SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -89,6 +87,33 @@ public class OurBasicAuthenticationFilter extends OncePerRequestFilter {
 
     }
 
+    /**
+     * construct an {@link Authentication} object from the username and password.
+     * <p>
+     * Add a simple role of USER.
+     * 
+     * @param username the username
+     * @param password the password
+     * @return and authentication object
+     */
+    private Authentication constructAuthenticationObject(@Nonnull final String username,
+            @Nonnull final String password) {
+
+        final List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+        authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+
+        final Authentication authentication = new UsernamePasswordAuthenticationToken(username, password, authorities);
+
+        return authentication;
+
+    }
+
+    /**
+     * Convert an input password string into a base64 representation of its SHA256 hash.
+     * 
+     * @param password the password to hash
+     * @return a base64 representation of the sha256 hash of the input password.
+     */
     private Optional<String> hashStringToBase64(@Nullable final String password) {
 
         try {
