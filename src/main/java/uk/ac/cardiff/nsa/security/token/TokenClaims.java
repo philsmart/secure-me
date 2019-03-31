@@ -1,8 +1,6 @@
+
 package uk.ac.cardiff.nsa.security.token;
 
-/**
- * Created by philsmart on 18/03/2017.
- */
 public class TokenClaims {
 
     private long issuedAt;
@@ -13,6 +11,8 @@ public class TokenClaims {
 
     private String principalName;
 
+    private String nonce;
+
     /**
      * Time since epoch
      */
@@ -20,7 +20,7 @@ public class TokenClaims {
         return issuedAt;
     }
 
-    public void setIssuedAt(long issuedAt) {
+    public void setIssuedAt(final long issuedAt) {
         this.issuedAt = issuedAt;
     }
 
@@ -28,7 +28,7 @@ public class TokenClaims {
         return validFor;
     }
 
-    public void setValidFor(long validFor) {
+    public void setValidFor(final long validFor) {
         this.validFor = validFor;
     }
 
@@ -36,7 +36,7 @@ public class TokenClaims {
         return role;
     }
 
-    public void setRole(String role) {
+    public void setRole(final String role) {
         this.role = role;
     }
 
@@ -47,7 +47,21 @@ public class TokenClaims {
         return principalName;
     }
 
-    public void setPrincipalName(String principalName) {
+    public void setPrincipalName(final String principalName) {
         this.principalName = principalName;
+    }
+
+    /**
+     * @return Returns the nonce.
+     */
+    public String getNonce() {
+        return nonce;
+    }
+
+    /**
+     * @param nonce The nonce to set.
+     */
+    public void setNonce(final String nonce) {
+        this.nonce = nonce;
     }
 }
