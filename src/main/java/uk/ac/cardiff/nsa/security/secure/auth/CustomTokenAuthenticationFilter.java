@@ -82,8 +82,6 @@ public class CustomTokenAuthenticationFilter extends AbstractAuthenticationProce
         final List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
         authorities.add(new SimpleGrantedAuthority(token.getRole()));
 
-        final HttpSessionSecurityContextRepository np;
-
         final UsernamePasswordAuthenticationToken upToken =
                 new UsernamePasswordAuthenticationToken(token.getUsername(), null, authorities);
 
