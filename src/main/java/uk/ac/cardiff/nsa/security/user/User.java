@@ -48,7 +48,7 @@ public class User {
     public SimpleToken generateToken() {
 
         final SimpleToken token = SimpleToken.builder().setPrincipalName(username).setRole(role)
-                .setIssuedAt(System.currentTimeMillis()).setValidFor(3600000).build();
+                .setIssuedAt(System.currentTimeMillis()).setValidFor(60000).build();
 
         return token;
     }
