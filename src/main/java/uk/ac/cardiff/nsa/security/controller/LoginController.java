@@ -2,6 +2,8 @@ package uk.ac.cardiff.nsa.security.controller;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.codec.Base64;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,11 +36,16 @@ public class LoginController {
     private TokenRepository tokenRepository;
 
     @RequestMapping(value = "/login", method= RequestMethod.GET, produces ="application/json" )
-    public String login(HttpServletRequest request){
+    public ResponseEntity<String> login(HttpServletRequest request){
 
         log.info("Login request");
 
         final String auth = request.getHeader("Authorization");
+        
+        if (auth==null){
+        	log.info("No credentials in request");
+        	return new ResponseEntity<String>("",HttpStatus.UNAUTHORIZED);
+        }
 
         log.debug("Has auth header [{}]",auth);
 
@@ -47,6 +54,8 @@ public class LoginController {
         final byte[] decodedUsernamePassword = Base64.decode(authUsernamePassword.getBytes());
 
         final String decodedUserPassString = new String(decodedUsernamePassword);
+        
+        log.debug("Decoded userpass string {}",decodedUserPassString);
 
         final String username = getUsernameFromBasicAuthString(decodedUserPassString);
         final String password = getPasswordFromBasicAuthString(decodedUserPassString);
@@ -62,7 +71,7 @@ public class LoginController {
 
         log.debug("Generated AccessToken {}", accessToken);
 
-        return accessToken;
+        return new ResponseEntity<String>(accessToken,HttpStatus.OK);
 
 
     }
