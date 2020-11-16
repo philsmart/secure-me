@@ -49,6 +49,7 @@ public class SimpleToken {
 
             // final byte[] encryptedKey = EncUtils.rsaWrapKey(SharedKey.rsaPubKey, key.getEncoded());
 
+            //encrypt the CEK using RSA.
             final byte[] encryptedKey = EncUtils.rsaWrapKey(SharedKey.rsaPubKey, key.getEncoded());
             log.debug("Encrypted key bytes [{}]", encryptedKey);
 
