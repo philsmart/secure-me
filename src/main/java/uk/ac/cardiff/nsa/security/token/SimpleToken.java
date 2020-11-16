@@ -40,7 +40,7 @@ public class SimpleToken {
 
         try {
 
-            // generate to be shared AES key
+            // generate to be shared AES key. This is the content encryption key CEK.
             final SecretKey key = EncUtils.generateAESCEKKey();
             log.debug("Secret key is [{}]", Base64.getEncoder().encodeToString(key.getEncoded()));
 
