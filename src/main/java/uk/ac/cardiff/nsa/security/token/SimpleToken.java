@@ -55,6 +55,7 @@ public class SimpleToken {
             final String encryptedKeyBase64 = Base64.getEncoder().encodeToString(encryptedKey);
             log.debug("Secret key encrypted is [{}]", encryptedKeyBase64);
 
+            //this is for debug only, to check the key wrapping worked.
             final byte[] decryptedKey = EncUtils.rsaUnWrapKey(SharedKey.rsaPrivateKey, encryptedKey);
             final String decryptedKeyBase64 = Base64.getEncoder().encodeToString(decryptedKey);
             log.debug("Secret key decrypted key [{}]", decryptedKeyBase64);
