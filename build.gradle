@@ -19,6 +19,10 @@ jar {
 	version = '0.0.1-SNAPSHOT'
 }
 
+springBoot {
+  mainClass = "uk.ac.cardiff.nsa.security.SecureMeApplication"
+}
+
 sourceCompatibility = 1.8
 
 repositories {
