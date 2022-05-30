@@ -26,6 +26,10 @@ repositories {
 }
 
 
+springBoot {
+  mainClass = "uk.ac.cardiff.nsa.security.SecureMeApplication"
+}
+
 dependencies {
 
 	compile('org.springframework.boot:spring-boot-starter-web')
