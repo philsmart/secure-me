@@ -26,6 +26,10 @@ repositories {
 }
 
 
+springBoot {
+  mainClass = "uk.ac.cardiff.nsa.security.SecureMeApplication"
+}
+
 dependencies {
 
 	compile('org.springframework.boot:spring-boot-starter-web')
@@ -41,9 +45,6 @@ dependencies {
 	compile group: 'org.json', name: 'json', version: '20160810'
 	// https://mvnrepository.com/artifact/com.google.code.findbugs/jsr305
 	compile group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.1'
-
-
-
 
 
 }
